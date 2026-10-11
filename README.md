@@ -77,3 +77,49 @@ CREATE TABLE Transactions (
     FOREIGN KEY (MemberID) REFERENCES Members(MemberID),
     FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
 );
+
+
+INSERT INTO Authors (FirstName, LastName, Country) VALUES 
+('J.K.', 'Rowling', 'UK'),
+('George', 'Orwell', 'UK'),
+('Dan', 'Brown', 'USA');
+
+INSERT INTO Books (Title, AuthorID, PublishedYear, AvailableCopies) VALUES 
+('Harry Potter', 1, 1997, 5),
+('1984', 2, 1949, 3),
+('The Da Vinci Code', 3, 2003, 4);
+
+INSERT INTO Members (FirstName, LastName, Email, JoinDate) VALUES 
+('Alice', 'Smith', 'alice@email.com', '2025-01-10'),
+('Bob', 'Jones', 'bob@email.com', '2025-02-15');
+
+INSERT INTO Staff (FirstName, LastName, Position, HireDate) VALUES 
+('Charlie', 'Brown', 'Librarian', '2023-06-01');
+
+SELECT 
+    m.FirstName, m.LastName, 
+    b.Title, 
+    t.BorrowDate 
+FROM Transactions t
+JOIN Members m ON t.MemberID = m.MemberID
+JOIN Books b ON t.BookID = b.BookID
+WHERE t.ReturnDate IS NULL;
+
+SELECT 
+    m.MemberID, 
+    CONCAT(m.FirstName, ' ', m.LastName) AS FullName, 
+    SUM(t.FineAmount) AS TotalFinesPaid
+FROM Transactions t
+JOIN Members m ON t.MemberID = m.MemberID
+GROUP BY m.MemberID, m.FirstName, m.LastName
+HAVING SUM(t.FineAmount) > 0;
+
+SELECT Title 
+FROM Books 
+WHERE BookID IN (
+    SELECT BookID 
+    FROM Transactions 
+    GROUP BY BookID 
+    ORDER BY COUNT(*) DESC 
+    LIMIT 3
+);
